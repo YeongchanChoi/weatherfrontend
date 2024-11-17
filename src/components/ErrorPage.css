@@ -1,0 +1,37 @@
+/* src/components/ErrorPage.css */
+.error-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f8fafc; /* bg-slate-50 */
+  padding: 1rem; /* px-4 */
+}
+
+.error-status {
+  font-size: 4rem; /* text-6xl */
+  font-weight: bold;
+  color: #0d151c;
+}
+
+.error-message {
+  margin-top: 1rem; /* mt-4 */
+  font-size: 1.25rem; /* text-xl */
+  color: #0d151c;
+}
+
+.error-button {
+  margin-top: 1.5rem; /* mt-6 */
+  padding: 0.75rem 1.5rem; /* py-3 px-6 */
+  background-color: #2f9bf4;
+  color: #ffffff;
+  font-weight: 600; /* font-semibold */
+  border-radius: 0.75rem; /* rounded-xl */
+  cursor: pointer;
+  border: none;
+}
+
+.error-button:hover {
+  background-color: #247ac0;
+}

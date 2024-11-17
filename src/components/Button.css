@@ -1,0 +1,32 @@
+/* Button.css */
+.button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* 기본 버튼 스타일 */
+.button-primary {
+  background-color: #1F2937; /* 검정색 */
+  color: #FFFFFF;
+  border: none;
+}
+
+/* 호버 시 연한 검정색으로 변경 */
+.button-primary:hover {
+  background-color: #293546; /* 연한 검정색 */
+}
+
+/* 반대의 경우 */
+.button-secondary {
+  background-color: #3d4f68; /* 연한 검정색 */
+  color: #FFFFFF;
+  border: none;
+}
+
+/* 호버 시 검정색으로 변경 */
+.button-secondary:hover {
+  background-color: #2e3d52; /* 검정색 */
+}
