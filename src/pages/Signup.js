@@ -1,6 +1,7 @@
 // src/pages/Signup.js
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { signup } from "../api";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -28,9 +29,19 @@ const Signup = () => {
 
   const handleSignup = (e) => {
     e.preventDefault();
-    // Implement signup logic here
-    // You might send email, password, and selectedStyles to your API
-    navigate("/login");
+    const data = {
+      email,
+      password,
+      preferredStyles: selectedStyles,
+    };
+    signup(data)
+      .then((response) => {
+        alert("회원가입이 완료되었습니다.");
+        navigate("/login");
+      })
+      .catch((error) => {
+        alert(error.response?.data?.message || "회원가입 실패");
+      });
   };
 
   return (
@@ -82,10 +93,7 @@ const Signup = () => {
               ))}
             </div>
           </div>
-          <button
-            type="submit"
-            className="button button-primary"
-          >
+          <button type="submit" className="button button-primary">
             Sign up
           </button>
         </form>

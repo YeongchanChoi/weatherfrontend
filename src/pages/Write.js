@@ -1,7 +1,37 @@
 // src/pages/Write.js
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { createPost } from "../api"; // api.js에서 createPost 함수 임포트
 
 function Write() {
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+
+  if (!user) {
+    navigate("/login");
+  }
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const data = {
+      title,
+      content,
+      user,
+    };
+
+    createPost(data)
+      .then((response) => {
+        alert("게시물이 작성되었습니다.");
+        navigate("/community");
+      })
+      .catch((error) => {
+        alert(error.response?.data?.message || "게시물 작성 실패");
+      });
+  };
+
   const [selectedStyles, setSelectedStyles] = useState([]);
 
   const styles = [
@@ -100,6 +130,7 @@ function Write() {
             {/* Submit Button */}
             <div className="flex justify-end">
               <button
+                onClick={handleSubmit}
                 type="submit"
                 className="button button-primary"
               >

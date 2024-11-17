@@ -1,9 +1,17 @@
 // src/components/Header.js
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
 
 const Header = () => {
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    alert("로그아웃되었습니다.");
+    navigate("/");
+  };
   return (
     <header className="header">
       <div className="header-left">
@@ -16,7 +24,6 @@ const Header = () => {
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            {/* 로고 디자인은 단순화하여 직접 작성 */}
             <circle cx="16" cy="16" r="16" fill="#4F46E5" />
             <path d="M10 16L14 20L22 12" stroke="#FFFFFF" strokeWidth="2" />
           </svg>
@@ -59,12 +66,20 @@ const Header = () => {
           <span className="notification-badge">3</span>
         </div>
         <div className="auth-buttons">
-          <Link to="/signup">
-            <button className="button-primary">가입</button>
-          </Link>
-          <Link to="/login">
-            <button className="button-primary">로그인</button>
-          </Link>
+          {user ? (
+            <button onClick={handleLogout} className="auth-button login-button">
+              로그아웃
+            </button>
+          ) : (
+            <>
+              <Link to="/signup">
+                <button className="auth-button signup-button">가입</button>
+              </Link>
+              <Link to="/login">
+                <button className="auth-button login-button">로그인</button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>

@@ -1,7 +1,53 @@
 // src/pages/PostDetail.js
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { fetchPostById, fetchCommentsByPostId, createComment } from "../api"; // api.js에서 함수들 임포트
 
 function PostDetail() {
+  const user = JSON.parse(localStorage.getItem("user"));
+  const { id } = useParams();
+  const [post, setPost] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [commentContent, setCommentContent] = useState("");
+
+  useEffect(() => {
+    fetchPostById(id)
+      .then((response) => {
+        setPost(response.data);
+      })
+      .catch((error) => {
+        alert(error.response?.data?.message || "게시물 로딩 실패");
+      });
+
+    fetchCommentsByPostId(id)
+      .then((response) => {
+        setComments(response.data);
+      })
+      .catch((error) => {
+        alert(error.response?.data?.message || "댓글 로딩 실패");
+      });
+  }, [id]);
+
+  const handleCommentSubmit = (e) => {
+    e.preventDefault();
+
+    const data = {
+      content: commentContent,
+      user,
+      post,
+    };
+
+    createComment(data)
+      .then((response) => {
+        setCommentContent("");
+        setComments((prevComments) => [...prevComments, response.data]);
+      })
+      .catch((error) => {
+        alert(error.response?.data?.message || "댓글 작성 실패");
+      });
+  };
+
+  if (!post) return <div>Loading...</div>;
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
       {/* 메인 콘텐츠 */}

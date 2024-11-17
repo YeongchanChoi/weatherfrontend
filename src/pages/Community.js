@@ -1,9 +1,21 @@
 // src/pages/Community.js
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; // If you're using react-router-dom for navigation
+import { fetchPosts } from "../api";
 
 function Community() {
-  const navigate = useNavigate(); // Initialize history for navigation
+  const navigate = useNavigate();
+  const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    fetchPosts()
+      .then((response) => {
+        setPosts(response.data);
+      })
+      .catch((error) => {
+        alert(error.response?.data?.message || "게시물 로딩 실패");
+      });
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
