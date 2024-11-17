@@ -19,7 +19,9 @@ function Write() {
     const data = {
       title,
       content,
-      user,
+      user: {
+        id: user.id,
+      },
     };
 
     createPost(data)
@@ -68,7 +70,7 @@ function Write() {
           </div>
 
           {/* Post Form */}
-          <form className="p-4 space-y-6">
+          <form onSubmit={handleSubmit} className="p-4 space-y-6">
             {/* Title Input */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -76,8 +78,10 @@ function Write() {
               </label>
               <input
                 type="text"
+                required
                 className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                 placeholder="Enter your post title"
+                onChange={(e) => setTitle(e.target.value)}
               />
             </div>
 
@@ -87,6 +91,8 @@ function Write() {
                 Content
               </label>
               <textarea
+                required
+                onChange={(e) => setContent(e.target.value)}
                 className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
                 rows="6"
                 placeholder="Write your post content here..."

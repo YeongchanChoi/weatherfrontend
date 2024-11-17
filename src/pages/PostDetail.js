@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { fetchPostById, fetchCommentsByPostId, createComment } from "../api"; // api.js에서 함수들 임포트
 
-function PostDetail() {
+const PostDetail = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const { id } = useParams();
   const [post, setPost] = useState(null);
@@ -11,6 +11,7 @@ function PostDetail() {
   const [commentContent, setCommentContent] = useState("");
 
   useEffect(() => {
+    // 게시물 가져오기
     fetchPostById(id)
       .then((response) => {
         setPost(response.data);
@@ -19,6 +20,7 @@ function PostDetail() {
         alert(error.response?.data?.message || "게시물 로딩 실패");
       });
 
+    // 댓글 가져오기
     fetchCommentsByPostId(id)
       .then((response) => {
         setComments(response.data);
@@ -31,10 +33,23 @@ function PostDetail() {
   const handleCommentSubmit = (e) => {
     e.preventDefault();
 
+    if (!user) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+
+    if (!commentContent) {
+      alert("공백은 제출할 수 없습니다");
+      return;
+    }
     const data = {
       content: commentContent,
-      user,
-      post,
+      user: {
+        id: user.id, // 사용자 ID만 포함
+      },
+      post: {
+        id: parseInt(id), // 게시물 ID 포함
+      },
     };
 
     createComment(data)
@@ -48,6 +63,7 @@ function PostDetail() {
   };
 
   if (!post) return <div>Loading...</div>;
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
       {/* 메인 콘텐츠 */}
@@ -56,33 +72,25 @@ function PostDetail() {
           {/* 제목과 설명 */}
           <div className="flex flex-wrap justify-between gap-3 p-4">
             <div className="flex flex-col gap-3">
-              <p className="text-4xl font-black text-gray-900">
-                Today's weather: 70°F and sunny
-              </p>
-              <p className="text-base text-gray-500">
-                What are you wearing today?
-              </p>
+              <p className="text-4xl font-black text-gray-900">{post.title}</p>
+              <p className="text-sm text-gray-500">{post.content}</p>
             </div>
-            <button className="h-10 px-4 bg-gray-100 rounded-xl text-sm font-bold text-gray-900">
-              Add a photo
-            </button>
           </div>
 
-          {/* 이미지 목록 */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
-            {[...Array(3)].map((_, index) => (
-              <div key={index} className="flex flex-col gap-3">
-                <div className="w-full aspect-[3/4] bg-gray-200 rounded-xl">
-                  {/* 이미지가 여기에 표시됩니다. */}
-                </div>
-              </div>
-            ))}
-          </div>
+          {/* 이미지 표시 */}
+          {post.imageUrl && (
+            <div className="p-4">
+              <img
+                src={post.imageUrl}
+                alt={post.title}
+                className="w-full h-auto rounded-xl"
+              />
+            </div>
+          )}
 
-          {/* 게시글 내용 */}
-          <p className="text-base text-gray-900 px-4 pb-3">
-            Amanda: I'm wearing a blue blouse and white jeans. The temperature
-            is perfect for a casual outfit. What are you wearing today?
+          {/* 게시글 작성자 정보 */}
+          <p className="text-sm text-gray-500 px-4 pb-3">
+            By: {post.user.email}
           </p>
 
           {/* 액션 버튼들 */}
@@ -109,17 +117,21 @@ function PostDetail() {
           <h2 className="text-2xl font-bold text-gray-900 px-4 pb-3 pt-5">
             Comments
           </h2>
-          {[...Array(2)].map((_, index) => (
-            <div key={index} className="flex gap-3 p-4">
+          {comments.map((comment) => (
+            <div key={comment.id} className="flex gap-3 p-4">
               <div className="w-10 h-10 rounded-full bg-gray-200">
-                {/* 프로필 이미지 */}
+                {/* 프로필 이미지 (추가 구현 가능) */}
               </div>
               <div>
                 <div className="flex gap-3">
-                  <p className="text-sm font-bold text-gray-900">사용자 이름</p>
-                  <p className="text-sm text-gray-500">몇 시간 전</p>
+                  <p className="text-sm font-bold text-gray-900">
+                    {comment.user.email}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {new Date(comment.createdAt).toLocaleString()}
+                  </p>
                 </div>
-                <p className="text-sm text-gray-900">댓글 내용</p>
+                <p className="text-sm text-gray-900">{comment.content}</p>
               </div>
             </div>
           ))}
@@ -129,14 +141,17 @@ function PostDetail() {
             <input
               type="text"
               placeholder="Add a comment..."
+              required
+              value={commentContent}
+              onChange={(e) => setCommentContent(e.target.value)}
               className="form-input flex-1 h-12 rounded-xl bg-gray-100 px-4 placeholder-gray-500"
             />
-            <button>
-              <span className="text-gray-500 bg-slate-600">작성</span>
+            <button onClick={handleCommentSubmit} className="text-gray-500">
+              😊
             </button>
           </div>
 
-          {/* 비디오 섹션 */}
+          {/* 비디오 섹션 (추가 구현 가능) */}
           <div className="mt-5">
             <div className="relative aspect-video bg-gray-200">
               {/* 비디오 플레이어 */}
@@ -146,6 +161,6 @@ function PostDetail() {
       </main>
     </div>
   );
-}
+};
 
 export default PostDetail;
