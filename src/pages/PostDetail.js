@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { fetchPostById, fetchCommentsByPostId, createComment } from "../api"; // api.js에서 함수들 임포트
+import Swal from 'sweetalert2'; // SweetAlert2 import
 
 const PostDetail = () => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -17,7 +18,11 @@ const PostDetail = () => {
         setPost(response.data);
       })
       .catch((error) => {
-        alert(error.response?.data?.message || "게시물 로딩 실패");
+        Swal.fire({
+          icon: 'error',
+          title: '게시물 로딩 실패',
+          text: error.response?.data?.message || "게시물 로딩 실패",
+        });
       });
 
     // 댓글 가져오기
@@ -26,7 +31,11 @@ const PostDetail = () => {
         setComments(response.data);
       })
       .catch((error) => {
-        alert(error.response?.data?.message || "댓글 로딩 실패");
+        Swal.fire({
+          icon: 'error',
+          title: '댓글 로딩 실패',
+          text: error.response?.data?.message || "댓글 로딩 실패",
+        });
       });
   }, [id]);
 
@@ -34,14 +43,24 @@ const PostDetail = () => {
     e.preventDefault();
 
     if (!user) {
-      alert("로그인이 필요합니다.");
+      Swal.fire({
+        icon: 'warning',
+        title: '로그인이 필요합니다.',
+        showConfirmButton: false,
+        timer: 1500
+      });
       return;
     }
 
-    if (!commentContent) {
-      alert("공백은 제출할 수 없습니다");
+    if (!commentContent.trim()) {
+      Swal.fire({
+        icon: 'error',
+        title: '댓글 작성 오류',
+        text: "공백은 제출할 수 없습니다.",
+      });
       return;
     }
+
     const data = {
       content: commentContent,
       user: {
@@ -56,9 +75,20 @@ const PostDetail = () => {
       .then((response) => {
         setCommentContent("");
         setComments((prevComments) => [...prevComments, response.data]);
+        Swal.fire({
+          icon: 'success',
+          title: '댓글 작성 완료',
+          text: "댓글이 작성되었습니다.",
+          showConfirmButton: false,
+          timer: 1500
+        });
       })
       .catch((error) => {
-        alert(error.response?.data?.message || "댓글 작성 실패");
+        Swal.fire({
+          icon: 'error',
+          title: '댓글 작성 실패',
+          text: error.response?.data?.message || "댓글 작성 실패",
+        });
       });
   };
 
@@ -66,7 +96,7 @@ const PostDetail = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
-      {/* 메인 콘텐츠 */}
+      {/* Main Content */}
       <main className="flex-1 px-10 py-5">
         <div className="max-w-5xl mx-auto">
           {/* 제목과 설명 */}

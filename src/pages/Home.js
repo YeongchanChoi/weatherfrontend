@@ -1,9 +1,28 @@
 // src/pages/Home.js
-import React from "react";
-import { Link } from "react-router-dom";
-import "../components/Button.css"
+import React, { useEffect, useState } from "react";
+import { Link , useNavigate} from "react-router-dom";
+import { fetchPosts } from "../api"; // 백엔드에서 게시물 가져오는 API
+import Swal from 'sweetalert2'; // SweetAlert2 import
 
 const Home = () => {
+  const navigate = useNavigate();
+  const [featuredPosts, setFeaturedPosts] = useState([]);
+
+  useEffect(() => {
+    // Home 페이지에서 추천 게시물 가져오기 (예: 최근 게시물 중 상위 4개)
+    fetchPosts()
+      .then((response) => {
+        setFeaturedPosts(response.data.slice(0, 4));
+      })
+      .catch((error) => {
+        Swal.fire({
+          icon: 'error',
+          title: '데이터 로딩 실패',
+          text: error.response?.data?.message || "데이터 로딩 실패",
+        });
+      });
+  }, []);
+
   return (
     <div className="px-40 flex flex-1 justify-center py-5">
       <div className="flex flex-col max-w-[960px] flex-1">
@@ -123,8 +142,8 @@ const Home = () => {
             </div>
           </div>
         </div>
-
-        {/* Today's Weather Section */}
+{/*
+        Today's Weather Section
         <h2 className="text-[#0d151c] text-[22px] font-bold">
           Today's Weather
         </h2>
@@ -140,7 +159,7 @@ const Home = () => {
           </div>
         </div>
         <div className="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-4">
-          {/* Weather-Based Outfit Recommendations */}
+          { Weather-Based Outfit Recommendations }
           <div className="flex flex-col gap-3">
             <div
               className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl"
@@ -173,7 +192,7 @@ const Home = () => {
               }}
             ></div>
           </div>
-        </div>
+        </div>*/}
 
         {/* Community Posts Section */}
         <h2 className="text-[#0d151c] text-[22px] font-bold">
@@ -181,75 +200,30 @@ const Home = () => {
         </h2>
         <div className="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-4">
           {/* Community Post */}
-          <div className="flex flex-col gap-3 pb-3">
-            <div
-              className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl"
-              style={{
-                backgroundImage: `url("https://cdn.usegalileo.ai/stability/4f1fc9e5-3d59-454b-9c6e-09694d15dc20.png")`,
-              }}
-            ></div>
-            <div>
-              <p className="text-[#0d151c] text-base font-medium">
-                @fashionista
-              </p>
-              <p className="text-[#49779c] text-sm font-normal">
-                Loving my sunny day outfit today!
-              </p>
-              <p className="text-[#49779c] text-sm font-normal">2h</p>
+          {featuredPosts.map((post) => (
+            <div key={post.id} className="flex flex-col gap-3 pb-3">
+              <div
+                className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl cursor-pointer"
+                style={{
+                  backgroundImage: `url("${post.imageUrl || 'https://via.placeholder.com/150'}")`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+                onClick={() => navigate(`/post/${post.id}`)} // 게시물 상세 페이지로 이동
+              ></div>
+              <div>
+                <p className="text-[#0d151c] text-base font-medium">
+                  {post.title}
+                </p>
+                <p className="text-[#49779c] text-sm font-normal">
+                  {post.content.substring(0, 50)}...
+                </p>
+                <p className="text-[#49779c] text-sm font-normal">
+                  {new Date(post.createdAt).toLocaleDateString()} 작성
+                </p>
+              </div>
             </div>
-          </div>
-          {/* Repeat similar blocks for other community posts */}
-          <div className="flex flex-col gap-3 pb-3">
-            <div
-              className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl"
-              style={{
-                backgroundImage: `url("https://cdn.usegalileo.ai/sdxl10/efa66ab3-befd-41aa-a29a-7cf4761eb30e.png")`,
-              }}
-            ></div>
-            <div>
-              <p className="text-[#0d151c] text-base font-medium">
-                @adventureswithstyle
-              </p>
-              <p className="text-[#49779c] text-sm font-normal">
-                Rainy day chic: trench coat and boots
-              </p>
-              <p className="text-[#49779c] text-sm font-normal">1d</p>
-            </div>
-          </div>
-          <div className="flex flex-col gap-3 pb-3">
-            <div
-              className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl"
-              style={{
-                backgroundImage: `url("https://cdn.usegalileo.ai/sdxl10/e11d7673-7220-453a-803e-546dc831a253.png")`,
-              }}
-            ></div>
-            <div>
-              <p className="text-[#0d151c] text-base font-medium">
-                @everydayelegance
-              </p>
-              <p className="text-[#49779c] text-sm font-normal">
-                Casual Friday vibes: jeans and a blazer
-              </p>
-              <p className="text-[#49779c] text-sm font-normal">3d</p>
-            </div>
-          </div>
-          <div className="flex flex-col gap-3 pb-3">
-            <div
-              className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl"
-              style={{
-                backgroundImage: `url("https://cdn.usegalileo.ai/sdxl10/31e15b04-bcf3-41c5-ba53-04e67eeff353.png")`,
-              }}
-            ></div>
-            <div>
-              <p className="text-[#0d151c] text-base font-medium">
-                @trendsetter
-              </p>
-              <p className="text-[#49779c] text-sm font-normal">
-                Trend alert: oversized sunglasses and bucket hats
-              </p>
-              <p className="text-[#49779c] text-sm font-normal">4d</p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>

@@ -2,6 +2,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
+import Swal from 'sweetalert2'; // SweetAlert2 import
 
 const Header = () => {
   const navigate = useNavigate();
@@ -9,9 +10,15 @@ const Header = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    alert("로그아웃되었습니다.");
+    Swal.fire({
+      icon: 'success',
+      title: '로그아웃되었습니다.',
+      showConfirmButton: false,
+      timer: 1500
+    });
     navigate("/");
   };
+
   return (
     <header className="header">
       <div className="header-left">

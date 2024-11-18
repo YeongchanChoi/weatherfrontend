@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../api";
+import Swal from 'sweetalert2'; // SweetAlert2 import
 
 const Login = () => {
   const navigate = useNavigate();
@@ -20,11 +21,20 @@ const Login = () => {
       .then((response) => {
         const user = response.data;
         localStorage.setItem("user", JSON.stringify(user));
-        alert("로그인 성공");
+        Swal.fire({
+          icon: 'success',
+          title: '로그인 성공',
+          showConfirmButton: false,
+          timer: 1500
+        });
         navigate("/dashboard");
       })
       .catch((error) => {
-        alert(error.response?.data?.message || "로그인 실패");
+        Swal.fire({
+          icon: 'error',
+          title: '로그인 실패',
+          text: error.response?.data?.message || "로그인 실패",
+        });
       });
   };
 

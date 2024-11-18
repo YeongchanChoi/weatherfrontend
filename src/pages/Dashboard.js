@@ -1,15 +1,40 @@
-// src/pages/Dashboard.js
-import React from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { fetchPosts } from "../api";
+import Swal from 'sweetalert2'; // SweetAlert2 import
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
+  const [posts, setPosts] = useState([]);
 
-  if (!user) {
-    navigate("/login");
-  }
+  useEffect(() => {
+    if (!user) {
+      Swal.fire({
+        icon: 'warning',
+        title: '로그인이 필요합니다.',
+        showConfirmButton: false,
+        timer: 1500
+      });
+      navigate("/login");
+      return;
+    }
+
+    // Dashboard에 필요한 데이터 페칭 (예: 사용자 정보, 게시물 등)
+    // 예시로 최근 게시물 몇 개를 가져오는 로직
+    fetchPosts()
+      .then((response) => {
+        setPosts(response.data.slice(0, 5)); // 최근 5개 게시물 가져오기
+      })
+      .catch((error) => {
+        Swal.fire({
+          icon: 'error',
+          title: '데이터 로딩 실패',
+          text: error.response?.data?.message || "데이터 로딩 실패",
+        });
+      });
+  }, [user, navigate]);
   return (
     <div className="px-40 flex flex-1 justify-center py-5">
       <div className="flex"></div>
@@ -239,69 +264,27 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Community Posts */}
-        <h2 className="text-[#111518] text-[22px] font-bold px-4 pb-3 pt-5">
-          Community Posts
+ {/* 최근 게시물 섹션 */}
+ <h2 className="text-[#111518] text-[22px] font-bold px-4 pb-3 pt-5">
+          최근 게시물
         </h2>
         <div className="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-4">
-          {/* Community Post Card */}
-          <div className="flex flex-col gap-3 pb-3">
-            <div
-              className="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-xl"
-              style={{
-                backgroundImage: `url("https://cdn.usegalileo.ai/stability/5577143f-3c51-4e7d-af84-00b89f9ef379.png")`,
-              }}
-            ></div>
-            <div>
-              <p className="text-[#111518] text-base font-medium">
-                @mattwilson
-              </p>
-              <p className="text-[#60778a] text-sm font-normal">2h ago</p>
+          {posts.map((post) => (
+            <div key={post.id} className="flex flex-col gap-3 pb-3">
+              <div
+                className="w-full aspect-square bg-gray-200 rounded-xl"
+                style={{
+                  backgroundImage: `url("${post.imageUrl || 'https://via.placeholder.com/150'}")`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              ></div>
+              <div>
+                <p className="text-[#111518] text-base font-medium">{post.title}</p>
+                <p className="text-[#60778a] text-sm font-normal">{post.content.substring(0, 50)}...</p>
+              </div>
             </div>
-          </div>
-          {/* Repeat similar blocks for other community posts */}
-          <div className="flex flex-col gap-3 pb-3">
-            <div
-              className="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-xl"
-              style={{
-                backgroundImage: `url("https://cdn.usegalileo.ai/stability/927a1b61-a39d-4461-9e37-044b38937cec.png")`,
-              }}
-            ></div>
-            <div>
-              <p className="text-[#111518] text-base font-medium">
-                @samanthasmith
-              </p>
-              <p className="text-[#60778a] text-sm font-normal">3h ago</p>
-            </div>
-          </div>
-          <div className="flex flex-col gap-3 pb-3">
-            <div
-              className="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-xl"
-              style={{
-                backgroundImage: `url("https://cdn.usegalileo.ai/stability/4a8c9ddd-a0b7-4c89-be67-ecfd7c304b0d.png")`,
-              }}
-            ></div>
-            <div>
-              <p className="text-[#111518] text-base font-medium">
-                @laurabrown
-              </p>
-              <p className="text-[#60778a] text-sm font-normal">4h ago</p>
-            </div>
-          </div>
-          <div className="flex flex-col gap-3 pb-3">
-            <div
-              className="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-xl"
-              style={{
-                backgroundImage: `url("https://cdn.usegalileo.ai/stability/109ff1fc-f102-47ac-8f2d-e1fd0b591bf0.png")`,
-              }}
-            ></div>
-            <div>
-              <p className="text-[#111518] text-base font-medium">
-                @chrisroberts
-              </p>
-              <p className="text-[#60778a] text-sm font-normal">5h ago</p>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>

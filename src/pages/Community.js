@@ -1,25 +1,68 @@
 // src/pages/Community.js
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // If you're using react-router-dom for navigation
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom"; // react-router-dom 사용
 import { fetchPosts } from "../api";
+import Swal from 'sweetalert2'; // SweetAlert2 import
 
 function Community() {
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
+  const [page, setPage] = useState(1); // 현재 페이지
+  const [hasMore, setHasMore] = useState(true); // 더 불러올 데이터가 있는지
+  const loader = useRef(null); // 로더 참조
 
   useEffect(() => {
+    loadPosts(page);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
+
+  const loadPosts = (pageNumber) => {
     fetchPosts()
       .then((response) => {
-        setPosts(response.data);
+        const newPosts = response.data.slice((pageNumber - 1) * 6, pageNumber * 6); // 페이지당 6개 게시물
+        setPosts((prevPosts) => [...prevPosts, ...newPosts]);
+        if (newPosts.length < 6) {
+          setHasMore(false); // 더 이상 불러올 게시물이 없으면
+        }
       })
       .catch((error) => {
-        alert(error.response?.data?.message || "게시물 로딩 실패");
+        Swal.fire({
+          icon: 'error',
+          title: '게시물 로딩 실패',
+          text: error.response?.data?.message || "게시물 로딩 실패",
+        });
       });
-  }, []);
+  };
+
+  // Intersection Observer를 사용한 무한 스크롤
+  useEffect(() => {
+    const options = {
+      root: null,
+      rootMargin: "20px",
+      threshold: 1.0,
+    };
+    const observer = new IntersectionObserver((entities) => {
+      const target = entities[0];
+      if (target.isIntersecting && hasMore) {
+        setPage((prev) => prev + 1);
+      }
+    }, options);
+
+    if (loader.current) {
+      observer.observe(loader.current);
+    }
+
+    return () => {
+      if (loader.current) {
+        observer.unobserve(loader.current);
+      }
+    };
+  }, [hasMore]);
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
       {/* Header */}
+      {/* Header는 App.js에서 이미 포함되어 있으므로 생략 */}
 
       {/* Main Content */}
       <main className="flex-1 px-10 py-5">
@@ -29,7 +72,7 @@ function Community() {
             <div className="flex flex-col gap-3">
               <p className="text-2xl font-bold text-gray-900">Community</p>
               <p className="text-sm text-gray-500">
-                Get inspired by the latest posts from the FashFusion community
+                Get inspired by the latest posts from the WhatToWear community
               </p>
             </div>
           </div>
@@ -50,7 +93,7 @@ function Community() {
             </div>
             <button
               className="button button-primary"
-              onClick={() => navigate("/write")} // Navigate to the Write page
+              onClick={() => navigate("/write")} // Write 페이지로 이동
             >
               작성
             </button>
@@ -58,20 +101,41 @@ function Community() {
 
           {/* Post List */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-            {[...Array(6)].map((_, index) => (
-              <div key={index} className="flex flex-col gap-3 pb-3">
-                <div className="w-full aspect-square bg-gray-200 rounded-xl">
-                  {/* Image goes here */}
-                </div>
+            {posts.map((post) => (
+              <div key={post.id} className="flex flex-col gap-3 pb-3">
+                <div
+                  className="w-full aspect-square bg-gray-200 rounded-xl cursor-pointer"
+                  style={{
+                    backgroundImage: `url("${post.imageUrl || 'https://via.placeholder.com/150'}")`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
+                  onClick={() => navigate(`/post/${post.id}`)} // 게시물 상세 페이지로 이동
+                ></div>
                 <div>
                   <p className="text-base font-medium text-gray-900">
-                    User Name
+                    {post.title || '제목 없음'}
                   </p>
-                  <p className="text-sm text-gray-500">Location Info</p>
+                  <p className="text-sm text-gray-500">
+                    {(post.content || '').substring(0, 50)}...
+                  </p>
                 </div>
               </div>
             ))}
           </div>
+
+          {/* 로더 */}
+          {hasMore && (
+            <div ref={loader} className="flex justify-center p-4">
+              <p>Loading...</p>
+            </div>
+          )}
+
+          {!hasMore && (
+            <div className="flex justify-center p-4">
+              <p>더 이상 게시물이 없습니다.</p>
+            </div>
+          )}
         </div>
       </main>
     </div>

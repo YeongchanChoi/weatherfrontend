@@ -2,8 +2,17 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./ErrorPage.css";
+import Swal from 'sweetalert2'; // SweetAlert2 import
 
 const ErrorPage = ({ status }) => {
+  React.useEffect(() => {
+    Swal.fire({
+      icon: 'error',
+      title: `${status} 오류`,
+      text: "페이지를 찾을 수 없습니다.",
+    });
+  }, [status]);
+
   return (
     <div className="error-page">
       <h1 className="error-status">{status}</h1>

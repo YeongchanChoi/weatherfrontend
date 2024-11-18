@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { signup } from "../api";
+import Swal from 'sweetalert2'; // SweetAlert2 import
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -36,11 +37,21 @@ const Signup = () => {
     };
     signup(data)
       .then((response) => {
-        alert("회원가입이 완료되었습니다.");
+        Swal.fire({
+          icon: 'success',
+          title: '회원가입 완료',
+          text: "회원가입이 완료되었습니다.",
+          showConfirmButton: false,
+          timer: 1500
+        });
         navigate("/login");
       })
       .catch((error) => {
-        alert(error.response?.data?.message || "회원가입 실패");
+        Swal.fire({
+          icon: 'error',
+          title: '회원가입 실패',
+          text: error.response?.data?.message || "회원가입 실패",
+        });
       });
   };
 

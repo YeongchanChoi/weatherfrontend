@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createPost } from "../api"; // api.js에서 createPost 함수 임포트
+import Swal from 'sweetalert2'; // SweetAlert2 import
 
 function Write() {
   const navigate = useNavigate();
@@ -10,6 +11,12 @@ function Write() {
   const [content, setContent] = useState("");
 
   if (!user) {
+    Swal.fire({
+      icon: 'warning',
+      title: '로그인이 필요합니다.',
+      showConfirmButton: false,
+      timer: 1500
+    });
     navigate("/login");
   }
 
@@ -17,14 +24,23 @@ function Write() {
     e.preventDefault();
 
     if (!title.trim()) {
-      alert("제목을 입력하세요.");
+      Swal.fire({
+        icon: 'error',
+        title: '제목 입력 오류',
+        text: "제목을 입력하세요.",
+      });
       return;
     }
-  
+
     if (!content.trim()) {
-      alert("내용을 입력하세요.");
+      Swal.fire({
+        icon: 'error',
+        title: '내용 입력 오류',
+        text: "내용을 입력하세요.",
+      });
       return;
     }
+
     const data = {
       title,
       content,
@@ -35,11 +51,21 @@ function Write() {
 
     createPost(data)
       .then((response) => {
-        alert("게시물이 작성되었습니다.");
+        Swal.fire({
+          icon: 'success',
+          title: '게시물 작성 완료',
+          text: "게시물이 작성되었습니다.",
+          showConfirmButton: false,
+          timer: 1500
+        });
         navigate("/community");
       })
       .catch((error) => {
-        alert(error.response?.data?.message || "게시물 작성 실패");
+        Swal.fire({
+          icon: 'error',
+          title: '게시물 작성 실패',
+          text: error.response?.data?.message || "게시물 작성 실패",
+        });
       });
   };
 
