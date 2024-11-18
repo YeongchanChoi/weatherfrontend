@@ -9,7 +9,6 @@ const Dashboard = () => {
 
   if (!user) {
     navigate("/login");
-    return null;
   }
   return (
     <div className="px-40 flex flex-1 justify-center py-5">
