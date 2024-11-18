@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { fetchPostById, fetchCommentsByPostId, createComment } from "../api"; // api.js에서 함수들 임포트
 import Swal from 'sweetalert2'; // SweetAlert2 import
+import Button from "../components/Button";
 
 const PostDetail = () => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -176,17 +177,12 @@ const PostDetail = () => {
               onChange={(e) => setCommentContent(e.target.value)}
               className="form-input flex-1 h-12 rounded-xl bg-gray-100 px-4 placeholder-gray-500"
             />
-            <button onClick={handleCommentSubmit} className="text-gray-500">
-              😊
-            </button>
+            <Button onClick={handleCommentSubmit} className="text-gray-500">
+              작성
+            </Button>
           </div>
 
-          {/* 비디오 섹션 (추가 구현 가능) */}
-          <div className="mt-5">
-            <div className="relative aspect-video bg-gray-200">
-              {/* 비디오 플레이어 */}
-            </div>
-          </div>
+
         </div>
       </main>
     </div>

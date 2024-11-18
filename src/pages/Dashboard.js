@@ -1,53 +1,65 @@
-import React, { useEffect } from "react";
+// src/pages/Dashboard.js
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
 import { fetchPosts } from "../api";
 import Swal from 'sweetalert2'; // SweetAlert2 import
+import Button from "../components/Button";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
-  const [posts, setPosts] = useState([]);
+  const [user, setUser] = useState(null); // 사용자 상태
+  const [posts, setPosts] = useState([]); // 게시물 상태
+  const [loading, setLoading] = useState(false); // 로딩 상태
 
+  // 사용자 정보 로드
   useEffect(() => {
-    if (!user) {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (!storedUser) {
       Swal.fire({
         icon: 'warning',
         title: '로그인이 필요합니다.',
         showConfirmButton: false,
         timer: 1500
+      }).then(() => {
+        navigate("/login");
       });
-      navigate("/login");
-      return;
+    } else {
+      setUser(storedUser);
     }
+  }, [navigate]);
 
-    // Dashboard에 필요한 데이터 페칭 (예: 사용자 정보, 게시물 등)
-    // 예시로 최근 게시물 몇 개를 가져오는 로직
-    fetchPosts()
-      .then((response) => {
-        setPosts(response.data.slice(0, 5)); // 최근 5개 게시물 가져오기
-      })
-      .catch((error) => {
-        Swal.fire({
-          icon: 'error',
-          title: '데이터 로딩 실패',
-          text: error.response?.data?.message || "데이터 로딩 실패",
+  // 사용자 정보가 로드된 후 게시물 불러오기
+  useEffect(() => {
+    if (user) {
+      setLoading(true);
+      fetchPosts()
+        .then((response) => {
+          setPosts(response.data.slice(0, 5)); // 최근 5개 게시물 가져오기
+          setLoading(false);
+        })
+        .catch((error) => {
+          setLoading(false);
+          Swal.fire({
+            icon: 'error',
+            title: '데이터 로딩 실패',
+            text: error.response?.data?.message || "데이터 로딩 실패",
+          });
         });
-      });
-  }, [user, navigate]);
+    }
+  }, [user]);
+
   return (
     <div className="px-40 flex flex-1 justify-center py-5">
-      <div className="flex"></div>
       <div className="flex flex-col max-w-[960px] flex-1">
         {/* Greeting and Profile */}
         <div className="flex flex-wrap justify-between gap-3 p-4">
           <p className="text-[#111518] tracking-light text-[32px] font-bold">
-            Good morning, Samantha
+            Good morning, {user ? user.name : "User"}
           </p>
           <Link to="/edit-profile">
-            <button className="button button-primary">
+            <Button className="button button-primary">
               <span className="truncate">Edit Profile</span>
-            </button>
+            </Button>
           </Link>
         </div>
 
@@ -165,7 +177,7 @@ const Dashboard = () => {
             <div
               className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl"
               style={{
-                backgroundImage: `url("https://cdn.usegalileo.ai/sdxl10/168d3d09-2db4-4f5c-8c73-cbe7676044ea.png")`,
+                backgroundImage: `url("https://cdn.usegalileo.ai/stability/230198f2-4033-4760-9049-aa1e44b80187.png")`,
               }}
             ></div>
             <div>
@@ -177,7 +189,7 @@ const Dashboard = () => {
             <div
               className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl"
               style={{
-                backgroundImage: `url("https://cdn.usegalileo.ai/stability/230198f2-4033-4760-9049-aa1e44b80187.png")`,
+                backgroundImage: `url("https://cdn.usegalileo.ai/sdxl10/68284c97-7cd7-43a6-b628-85cee150a871.png")`,
               }}
             ></div>
             <div>
@@ -189,7 +201,7 @@ const Dashboard = () => {
             <div
               className="w-full bg-center bg-no-repeat aspect-square bg-cover rounded-xl"
               style={{
-                backgroundImage: `url("https://cdn.usegalileo.ai/sdxl10/68284c97-7cd7-43a6-b628-85cee150a871.png")`,
+                backgroundImage: `url("https://cdn.usegalileo.ai/sdxl10/265f2cf2-1040-4743-9b39-a6b8dddb09b8.png")`,
               }}
             ></div>
             <div>
@@ -264,28 +276,32 @@ const Dashboard = () => {
           </div>
         </div>
 
- {/* 최근 게시물 섹션 */}
- <h2 className="text-[#111518] text-[22px] font-bold px-4 pb-3 pt-5">
+        {/* 최근 게시물 섹션 */}
+        <h2 className="text-[#111518] text-[22px] font-bold px-4 pb-3 pt-5">
           최근 게시물
         </h2>
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-4">
-          {posts.map((post) => (
-            <div key={post.id} className="flex flex-col gap-3 pb-3">
-              <div
-                className="w-full aspect-square bg-gray-200 rounded-xl"
-                style={{
-                  backgroundImage: `url("${post.imageUrl || 'https://via.placeholder.com/150'}")`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }}
-              ></div>
-              <div>
-                <p className="text-[#111518] text-base font-medium">{post.title}</p>
-                <p className="text-[#60778a] text-sm font-normal">{post.content.substring(0, 50)}...</p>
+        {loading ? (
+          <p className="px-4">Loading posts...</p>
+        ) : (
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-4">
+            {posts.map((post) => (
+              <div key={post.id} className="flex flex-col gap-3 pb-3">
+                <div
+                  className="w-full aspect-square bg-gray-200 rounded-xl"
+                  style={{
+                    backgroundImage: `url("${post.imageUrl || 'https://via.placeholder.com/150'}")`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
+                ></div>
+                <div>
+                  <p className="text-[#111518] text-base font-medium">{post.title || '제목 없음'}</p>
+                  <p className="text-[#60778a] text-sm font-normal">{(post.content || '').substring(0, 50)}...</p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

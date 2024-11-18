@@ -2,6 +2,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
+import Button from './Button'
 import Swal from 'sweetalert2'; // SweetAlert2 import
 
 const Header = () => {
@@ -74,16 +75,16 @@ const Header = () => {
         </div>
         <div className="auth-buttons">
           {user ? (
-            <button onClick={handleLogout} className="auth-button login-button">
+            <Button onClick={handleLogout} className="auth-button login-button">
               로그아웃
-            </button>
+            </Button>
           ) : (
             <>
               <Link to="/signup">
-                <button className="auth-button signup-button">가입</button>
+                <Button className="auth-button signup-button">가입</Button>
               </Link>
               <Link to="/login">
-                <button className="auth-button login-button">로그인</button>
+                <Button className="auth-button login-button">로그인</Button>
               </Link>
             </>
           )}

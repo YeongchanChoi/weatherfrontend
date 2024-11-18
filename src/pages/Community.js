@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom"; // react-router-dom 사용
 import { fetchPosts } from "../api";
 import Swal from 'sweetalert2'; // SweetAlert2 import
+import Button from "../components/Button";
 
 function Community() {
   const navigate = useNavigate();
@@ -91,12 +92,12 @@ function Community() {
                 )
               )}
             </div>
-            <button
+            <Button
               className="button button-primary"
               onClick={() => navigate("/write")} // Write 페이지로 이동
             >
               작성
-            </button>
+            </Button>
           </div>
 
           {/* Post List */}

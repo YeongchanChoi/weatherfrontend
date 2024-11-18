@@ -1,6 +1,7 @@
 // src/pages/EditProfile.js
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import Button from "../components/Button";
 
 const EditProfile = () => {
   const [selectedStyles, setSelectedStyles] = useState([]);
@@ -32,9 +33,9 @@ const EditProfile = () => {
             Edit Profile
           </h1>
           <Link to="/dashboard">
-            <button className="button button-primary">
+            <Button className="button button-primary">
               <span className="truncate">Back</span>
-            </button>
+            </Button>
           </Link>
         </div>
 
@@ -95,12 +96,12 @@ const EditProfile = () => {
             </div>
           </div>
 
-          <button
+          <Button
             type="submit"
             className="mt-4 h-12 px-6 bg-[#111518] text-white text-base font-medium rounded-xl hover:bg-[#000]"
           >
             Save Changes
-          </button>
+          </Button>
         </form>
       </div>
     </div>

@@ -1,14 +1,18 @@
-// src/pages/Write.js
+// src/pages/write.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createPost } from "../api"; // api.js에서 createPost 함수 임포트
-import Swal from 'sweetalert2'; // SweetAlert2 import
+import { createPost } from "../api"; // 백엔드 API 호출 함수
+import Swal from 'sweetalert2';
+import Button from '../components/Button'; // Button 컴포넌트 임포트
 
-function Write() {
+const Write = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [formData, setFormData] = useState({
+    title: "",
+    content: "",
+    imageUrl: "",
+  });
 
   if (!user) {
     Swal.fire({
@@ -16,173 +20,87 @@ function Write() {
       title: '로그인이 필요합니다.',
       showConfirmButton: false,
       timer: 1500
+    }).then(() => {
+      navigate("/login");
     });
-    navigate("/login");
+    return null;
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!title.trim()) {
-      Swal.fire({
-        icon: 'error',
-        title: '제목 입력 오류',
-        text: "제목을 입력하세요.",
-      });
-      return;
-    }
-
-    if (!content.trim()) {
-      Swal.fire({
-        icon: 'error',
-        title: '내용 입력 오류',
-        text: "내용을 입력하세요.",
-      });
-      return;
-    }
-
-    const data = {
-      title,
-      content,
-      user: {
-        id: user.id,
-      },
-    };
-
-    createPost(data)
-      .then((response) => {
-        Swal.fire({
-          icon: 'success',
-          title: '게시물 작성 완료',
-          text: "게시물이 작성되었습니다.",
-          showConfirmButton: false,
-          timer: 1500
-        });
-        navigate("/community");
-      })
-      .catch((error) => {
-        Swal.fire({
-          icon: 'error',
-          title: '게시물 작성 실패',
-          text: error.response?.data?.message || "게시물 작성 실패",
-        });
-      });
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
-  const [selectedStyles, setSelectedStyles] = useState([]);
-
-  const styles = [
-    "Vintage",
-    "Minimal",
-    "Casual",
-    "Business Casual",
-    "Business",
-    "Street",
-    "Classic",
-  ];
-
-  const toggleStyle = (style) => {
-    setSelectedStyles((prevSelectedStyles) =>
-      prevSelectedStyles.includes(style)
-        ? prevSelectedStyles.filter((s) => s !== style)
-        : [...prevSelectedStyles, style]
-    );
+  const handleWrite = async (e) => {
+    e.preventDefault();
+    try {
+      const postData = {
+        ...formData,
+        user: {
+          id: user.id,
+        },
+      };
+      await createPost(postData);
+      Swal.fire({
+        icon: 'success',
+        title: '작성 완료',
+        text: "게시물이 작성되었습니다.",
+        showConfirmButton: false,
+        timer: 1500
+      });
+      navigate("/dashboard");
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: '작성 실패',
+        text: error.response?.data?.message || "게시물 작성에 실패했습니다.",
+      });
+    }
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
-      {/* Main Content */}
-      <main className="flex-1 px-10 py-5">
-        <div className="max-w-5xl mx-auto">
-          {/* Title and Description */}
-          <div className="flex flex-wrap justify-between gap-3 p-4">
-            <div className="flex flex-col gap-3">
-              <p className="text-2xl font-bold text-gray-900">Write a Post</p>
-              <p className="text-sm text-gray-500">
-                Share your style with the FashFusion community
-              </p>
-            </div>
-          </div>
-
-          {/* Post Form */}
-          <form onSubmit={handleSubmit} className="p-4 space-y-6">
-            {/* Title Input */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Title
-              </label>
-              <input
-                type="text"
-                required
-                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
-                placeholder="Enter your post title"
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
-
-            {/* Content Textarea */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Content
-              </label>
-              <textarea
-                required
-                onChange={(e) => setContent(e.target.value)}
-                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200"
-                rows="6"
-                placeholder="Write your post content here..."
-              ></textarea>
-            </div>
-
-            {/* Style Selection */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Select Style
-              </label>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {styles.map((style) => (
-                  <button
-                    key={style}
-                    type="button"
-                    onClick={() => toggleStyle(style)}
-                    className={`px-4 py-2 rounded-xl ${
-                      selectedStyles.includes(style)
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-200 text-gray-700"
-                    }`}
-                  >
-                    {style}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Image Upload */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Upload Image
-              </label>
-              <input
-                type="file"
-                className="mt-1 w-full text-sm text-gray-500"
-              />
-            </div>
-
-            {/* Submit Button */}
-            <div className="flex justify-end">
-              <button
-                onClick={handleSubmit}
-                type="submit"
-                className="button button-primary"
-              >
-                Submit
-              </button>
-            </div>
-          </form>
+    <div className="flex justify-center items-center min-h-screen bg-gray-50">
+      <form onSubmit={handleWrite} className="bg-white p-6 rounded-lg shadow-md w-96">
+        <h2 className="text-2xl font-bold mb-4">게시물 작성</h2>
+        <div className="mb-4">
+          <label className="block text-gray-700">제목</label>
+          <input
+            type="text"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            required
+            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+          />
         </div>
-      </main>
+        <div className="mb-4">
+          <label className="block text-gray-700">내용</label>
+          <textarea
+            name="content"
+            value={formData.content}
+            onChange={handleChange}
+            required
+            rows="4"
+            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+          ></textarea>
+        </div>
+        <div className="mb-6">
+          <label className="block text-gray-700">이미지 URL</label>
+          <input
+            type="url"
+            name="imageUrl"
+            value={formData.imageUrl}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+            placeholder="https://example.com/image.jpg"
+          />
+        </div>
+        <Button type="submit">작성하기</Button>
+      </form>
     </div>
   );
-}
+};
 
 export default Write;

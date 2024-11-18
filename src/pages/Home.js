@@ -45,11 +45,7 @@ const Home = () => {
                 </h2>
               </div>
               <div className="flex-wrap gap-3 flex">
-                <Link to="/signup">
-                  <button className="button button-primary">
-                    <span className="truncate">시작하기</span>
-                  </button>
-                </Link>
+
               </div>
             </div>
           </div>
